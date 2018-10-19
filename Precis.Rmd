@@ -17,7 +17,7 @@ A PhD student who helped impliment the survey sent me 5 different CSV files that
 
 I was also send an R script that "cleans and summarizes the two waves" so I am trying to figure out how and when to use that. This is titeled "my run 004 1 June. R" and I loaded in into this repo. 
 
-```{r,include=TRUE, echo=FALSE, message=FALSE}
+```{r,include=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 both_waves <- read_csv("farmerData_bothWaves.csv")
 wave_2 <- read_csv("Farmer_Survey_withKeyIndicators_wave2.csv")
 wave_1 <- read_csv("wave1_Farmer_Survey_Cleaned_with_key_indicators.csv")
