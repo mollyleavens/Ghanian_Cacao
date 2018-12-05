@@ -1,10 +1,16 @@
 
+library(readr)
 library(shiny)
 library(leaflet)
 library(knitr)
+library(tidyverse)
 
 # Read in read_rds
-both_waves <- read.csv("farmerData-bothWaves_copy.csv")
+both_waves <- read.csv("farmerData_bothWaves_copy.csv")
+chem_resources <- read_rds("chem_resources.rds")
+fin_resources <- read_rds("fin_resources.rds")
+phys_resources <- read_rds("phys_resources.rds")
+ed_resources <- read_rds("ed_resources.rds")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -18,7 +24,7 @@ ui <- fluidPage(
    
    # Sidebar with action buttons
    sidebarLayout(
-      sidebarPanel(
+      #sidebarPanel(
         #turn this into a drop-down box 
         #add option where you can color by gender
         #add option to separate by region ()
@@ -26,14 +32,11 @@ ui <- fluidPage(
          #actionButton("gghhsize", "House Hold Size"),
          #actionButton("ggfraclost", "Fraction of Harvest Lost to Problems"),
          #tabs for wave 1 and 2 or both
-         selectInput(inputId = "variable",
-                     label = "Choose a variable:",
-                     choices = c("House Hold Size", "Number of Children", "Age of House Hold Head",
-                                 "")
-         ),
+         #conditionalPanel(condition = "tabPanel == `Box Plots`",
          
-          hr()
-      ),
+         
+          hr(),
+      
       
       # Main Panel with Tabs (1 for each gender)
       # Output plots  
@@ -61,7 +64,12 @@ ui <- fluidPage(
                              leafletOutput("surveymap")),
                     
              # Show plots
-                    tabPanel("Box Plots", plotOutput("boxPlot")),
+                    tabPanel("Box Plots", 
+                             selectInput(inputId = "variable",
+                                         label = "Choose a variable:",
+                                         choices = c("House Hold Size", "Number of Children", "Age of House Hold Head",
+                                                     "")),
+                            plotOutput("boxPlot")),
              
              # Show knitr tables       
                     tabPanel("Summary Datatables",  
@@ -70,13 +78,18 @@ ui <- fluidPage(
                              tableOutput("fin_resources"),
                              tableOutput("chem_resources"),
                              tableOutput("phys_resources"))
+             
+             , id = "conditionedPanels"
+            
               )
         
         
       )
    )
-
 )
+   
+
+
 # Define server logic required to draw a histogram
 server <- function(input, output) {
    
