@@ -87,7 +87,7 @@ boxplot(both_waves$gghhhwives)
 ###Each table formatted into percentage
 
 #percentage with access to physical resources 
-#COULD ADDITIONALLY GROUP BY GENDER AND REGION 
+#COULD ADDITIONALLY GROUP BY GENDER AND REGION
 phys_resources <- 
   both_waves %>% 
     select(ggcar, ggchainsaw, ggmistblower, ggelectric, surveyWave) %>% 
@@ -105,6 +105,8 @@ phys_resources <-
                       /(5371-sum(is.na(both_waves$ggelectric))), digits = 0)
   )
 
+write_rds(phys_resources, "phys_resources.rds")
+
 #percentage with access to educational/training resources
 #COULD ADDITIONALLY GROUP BY GENDER AND REGION
 ed_resources <- 
@@ -120,6 +122,8 @@ ed_resources <-
                       percent(sum(both_waves$ggeverschoolhhhead, na.rm = TRUE)
                       /(5371-sum(is.na(both_waves$ggeverschoolhhhead))), digits = 0)
   )
+
+write_rds(ed_resources, "ed_resources.rds")
 
 #percentage with access to financial/organizational resources
 #COULD ADDITIONALLY GROUP BY GENDER AND REGION
@@ -140,6 +144,8 @@ fin_resources <-
 #migrant status/ ggborninvillage
 #something about health (healthcare and malaria)
 
+write_rds(fin_resources, "fin_resources.rds")
+
 #percentage with access to chemical inputs 
 #COULD ADDITIONALLY GROUP BY GENDER AND REGION
 chem_resources <-
@@ -156,18 +162,7 @@ chem_resources <-
                       /(5371-sum(is.na(both_waves$ggfungi))), digits = 0)
 )
 
-#create output tables 
-phys_resources %>% 
-  kable(caption = "Total number of unique candidate IDs and comittee IDs for each party",
-      col.names = c("Party","Candidate IDs", "Committee IDs"))
-
-fin_resources %>% 
-  kable(caption = "Total number of unique candidate IDs and comittee IDs for each party",
-      col.names = c("Party","Candidate IDs", "Committee IDs"))
-  
-chem_resources %>% 
-  kable(caption = "Total number of unique candidate IDs and comittee IDs for each party",
-      col.names = c("Party","Candidate IDs", "Committee IDs"))
+write_rds(chem_resources, "chem_resources.rds")
 
 ```
 

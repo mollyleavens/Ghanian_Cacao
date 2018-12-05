@@ -3,23 +3,18 @@ library(shiny)
 library(leaflet)
 library(knitr)
 
-#should read in read_rds(path = "ENTER FILE NAME")
+# Read in read_rds
+both_waves <- read.csv("farmerData-bothWaves_copy.csv")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
    
-   # Application title
+  # Application title
   # NOTE TO SELF: ALIGN THIS CENTER
    titlePanel("Ghanian Cacao Farmers"),
    
    # Authorship
    h4("Analysis and visualizations by Molly Leavens"),
-   
-   # Short description of survey
-   p("This app summarizes some of the key variables for a survey of several thousand 
-      cacao farmers across Ghana in both 2008 and 2014. Harvard Professor Micheal 
-      Hiscox and Mondelez, the world’s largest chocolate company, jointly implemented 
-      this survey."),
    
    # Sidebar with action buttons
    sidebarLayout(
@@ -27,27 +22,57 @@ ui <- fluidPage(
         #turn this into a drop-down box 
         #add option where you can color by gender
         #add option to separate by region ()
-         h5("Click on varible to see the distribution of this variable"),
-         actionButton("gghhsize", "House Hold Size"),
-         actionButton("ggfraclost", "Fraction of Harvest Lost to Problems"),
+        # provide instructions h5("Click on varible to see the distribution of this variable"),
+         #actionButton("gghhsize", "House Hold Size"),
+         #actionButton("ggfraclost", "Fraction of Harvest Lost to Problems"),
+         #tabs for wave 1 and 2 or both
+         selectInput(inputId = "variable",
+                     label = "Choose a variable:",
+                     choices = c("House Hold Size", "Number of Children", "Age of House Hold Head",
+                                 "")
+         ),
+         
           hr()
       ),
       
+      # Main Panel with Tabs (1 for each gender)
+      # Output plots  
       mainPanel(
+        tabsetPanel(type = "tabs",
+                    
+                    tabPanel("Survey Overview",    
+                             # Short description of survey
+                             p("Ghana is the world’s second largest cacao producing region after its neighbor 
+                               the Ivory Coast. The social, economic, and environmental conditions of these 
+                               farmers is therefore critical in assessing effective intervention methods and 
+                               predicting future global cacao market trends. 
         
-        # Show plots
-         plotOutput("boxPlot"),
-         
-        # Show map of survey distribution 
-         h5("Distribution of Survey locations"),
-         leafletOutput("surveymap"),
+                               This app summarizes some of the key variables for a survey of several thousand 
+                               cacao farmers across Ghana in both 2008 and 2014. Harvard Professor Micheal 
+                               Hiscox and Mondelez, the world’s largest chocolate company, jointly implemented 
+                               this survey. This app does not contain statistical analyses and is not meant to 
+                               claim correlations, causations, or significance. It is rather to display the 
+                               framework for the survey and some key aggregated data.")),
+       
+             # Show map of survey distribution 
+                    tabPanel("Map", 
+                             h5("Distribution of Survey locations"),
+                             p("Each map point represents a single conducted survey"),
+                             leafletOutput("surveymap")),
+                    
+             # Show plots
+                    tabPanel("Box Plots", plotOutput("boxPlot")),
+             
+             # Show knitr tables       
+                    tabPanel("Summary Datatables",  
+                             h5("Percentage of respondents with access to key resources"),
+                             tableOutput("ed_resources"),
+                             tableOutput("fin_resources"),
+                             tableOutput("chem_resources"),
+                             tableOutput("phys_resources"))
+              )
         
-        # Show knitr tables 
-         h5("Percentage of respondents with access to key resources"),
-         tableOutput("ed_resources"),
-         tableOutput("fin_resources"),
-         tableOutput("chem_resources"),
-         tableOutput("phys_resources")
+        
       )
    )
 
