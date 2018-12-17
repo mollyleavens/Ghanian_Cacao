@@ -4,22 +4,19 @@ library(shiny)
 library(leaflet)
 library(knitr)
 library(kableExtra)
+library(formattable)
 library(tidyverse)
 
 # Read in read_rds
-both_waves <- read.csv("farmerData_bothWaves_copy.csv")
-chem_resources <- read_rds("chem_resources.rds")
-fin_resources <- read_rds("fin_resources.rds")
-phys_resources <- read_rds("phys_resources.rds")
-ed_resources <- read_rds("ed_resources.rds")
+both_waves <- read_rds("both_waves.rds")
 
-# Define UI 
+# Define UI with navbar 
 ui <- 
   navbarPage("Ghanian Cacao Farmers",
   
   tabPanel("About",
   
-   fluidRow( 
+    fluidRow( 
      
   # Short description of survey  
    column(10, allign = "center",
@@ -29,96 +26,66 @@ ui <-
       cacao farmers across Ghana in both 2008 and 2014."),      
      h5(strong("Survey Overview")),
         p("Ghana is the world’s second largest cacao producing region after its neighbor 
-                               the Ivory Coast. The social, economic, and environmental conditions of these 
-                               farmers is therefore critical in assessing effective intervention methods and 
-                               predicting future global cacao market trends. 
+            the Ivory Coast. The social, economic, and environmental conditions of these 
+            farmers is therefore critical in assessing effective intervention methods and 
+            predicting future global cacao market trends. 
         
-                              Harvard Professor Micheal 
-                               Hiscox and Mondelez, the world’s largest chocolate company, jointly implemented 
-                               this survey. This app does not contain statistical analyses and is not meant to 
-                               claim correlations, causations, or significance. It is rather to display the 
-                               framework for the survey and some key aggregated data."),
+            Harvard Professor Micheal Hiscox and Mondelez, the world’s largest chocolate company, jointly implemented 
+            this survey. This app does not contain statistical analyses and is not meant to 
+            claim correlations, causations, or significance. It is rather to display the 
+            framework for the survey and some key aggregated data."),
+     br(),    
     
+    # This is a photo I took of a hand holding a cacao pod in Belize in October 2018  
         HTML('<center><img src="cacao_pod.jpg" height = 525 width = 350 ></center>'),  
    hr()))),
   
+  # This Data tab then has 3 tabs within (Map, Univariate Distributions, and Summar Datatable)
   tabPanel("Data",
   fluidPage(
-   
-      
-        #add option where you can color by gender
-        #add option to separate by region ()
-        #provide instructions h5("Click on varible to see the distribution of this variable"),
-         #actionButton("gghhsize", "House Hold Size"),
-         #actionButton("ggfraclost", "Fraction of Harvest Lost to Problems"),
-         #tabs for wave 1 and 2 or both
-         #conditionalPanel(condition = "tabPanel == `Box Plots`",
-      
-      column(12,
+     column(12,
         tabsetPanel(type = "tabs",
-                    
-                    
-                  #  htmlOutput("cacao_photo")),
+              
              # Show map of survey distribution 
                     tabPanel("Map", 
                              h5("Distribution of survey locations"),
                              p("Each map point represents a single conducted survey"),
+                             p("I understand there were not surveys conducted in the middle of the ocean.
+                               However, I am working to find the source of this error before I filter them out."),
                              leafletOutput("surveymap")),
                     
              # This tab allows user to user to view univariate distributions
                     tabPanel("Univariate Distributions", 
                              br(),
-                             p("More variable options coming soon!"),
+                            # I will be adding more variable options soon once I have more discussions with my advisor about the data. 
+                            # p("More variable options coming soon!"),
                              selectInput(inputId = "variable",
                                          label = "Choose a variable to view distribution:",
-                                         choices = c("House Hold Size", "Number of Children",
+                                         choices = c("Household Size", "Number of Children",
                                                      "")),
                             plotOutput("boxPlot")),
-             
-            # This tab allows user to user to view relationship between two variables
-            tabPanel("Multivariate Distributions",
-                     br(),
-                     p("Coming soon!")),
-             #         selectInput(inputId = "variable",
-              #                    label = "Choose a variable:",
-               #                   choices = c("House Hold Size", "Number of Children", "Age of House Hold Head",
-                #                              "")),
-                 #     plotOutput("boxPlot")),
-             
-             # Show knitr tables       
-                    tabPanel("Summary Datatables",  
+            
+             # Show summary table of        
+                    tabPanel("Summary Datatable",  
                              h3("Percentage of respondents with access to key resources"),
-                             
-                             h5("Educational Resources"),
-                             tableOutput("ed_resources"),
-                             
-                             h5("Financial Resources"),
-                             tableOutput("fin_resources"),
-                             
-                             h5("Chemical Resources"),
-                             tableOutput("chem_resources"),
-                             
-                             h5("Physical Resources"),
-                             tableOutput("phys_resources") 
-                                  
+                             hr(),
+                             tableOutput("resources")
             
               ))))),
             # Authorship
+            # Included personal college email for questions 
+            # and a small photo of me on a cacao farm. 
             tabPanel("Authorship",
                      h4("Analysis and visualizations by Molly Leavens"),
                      p("Please direct any questions to mleavens at college.harvard.edu"),
                      HTML('<left><img src="molly_tree.jpg" height = 116.66 width = 175 ></left>')
   
-        
-
 ))
-
 
 # Define server logic 
 server <- function(input, output) {
   
 # Render map of survey locations 
-# Removed   
    output$surveymap <- renderLeaflet ({
      leaflet() %>%
      addTiles() %>%  
@@ -128,27 +95,25 @@ server <- function(input, output) {
    })
    
 # This allows the user to decide what variable gets graphed 
-   variableInput <- reactive({
+   variableInput <- reactive ({
      switch(input$variable,
-            "House Hold Size" = both_waves$gghhsize, 
-            "Number of Children" = both_waves$numChildren, 
-            "Age of House Hold Head" = both_waves$ggmeanage)
+            "Household Size" = both_waves$gghhsize, 
+            "Number of Children" = both_waves$numChildren)
    })
    
 # Render histogram of variable chosen by user    
    output$boxPlot <- renderPlot({
        ggplot(both_waves, aes_string(variableInput())) + geom_bar() + labs(x = input$variable)
-     })
+   })
    
 # Render percentage table under the "Summary Datatable" tab
-   
-  # Creating educational resource data table 
   # Selecting for variables reduced to present/absent 1/0 yes/no
-  # Each new line in the select() call corresponds to a variable grouping (ex - education, training)   
+  # Each new line in the select() call corresponds to a variable grouping (ex - "Educational Resources")   
   # Named the new summary variables such that they would look polished on app
-    output$ed_resources <- function() {
-     both_waves %>% 
-       select(surveyWave, ggtraining, ggliterate, ggeverschoolhhhead, 
+    output$resources <- function() {
+     req(both_waves)
+      both_waves %>% 
+       select(surveyWave, ggliterate, ggeverschoolhhhead, 
               ggreceivedloan, ggFarmGroupOrCoop, ggbank,
               ggcar, ggchainsaw, ggmistblower, ggelectric,
               ggdumfert, gginsect, ggherb, ggfungi,
@@ -160,11 +125,11 @@ server <- function(input, output) {
                  `Literate` = 
                     percent(sum(ggliterate, na.rm = TRUE)
                     /(5371-sum(is.na(ggliterate))), digits = 0),
-                 `House hold head ever attended school` = 
+                 `Household head ever attended school` = 
                     percent(sum(ggeverschoolhhhead, na.rm = TRUE)
                     /(5371-sum(is.na(ggeverschoolhhhead))), digits = 0),
          # Financial Resources         
-                 `Has ever received loan` = 
+                 `Has ever received a loan` = 
                     percent(sum(ggreceivedloan, na.rm = TRUE)
                     /(5371-sum(is.na(ggreceivedloan))), digits = 0),
                  `Is member of farming organization or coop` = 
@@ -224,19 +189,34 @@ server <- function(input, output) {
                  `Received child labor sensitization training` = 
                       percent(sum(ggTrainChildLab, na.rm = TRUE)
                       /(5371-sum(is.na(ggTrainChildLab))), digits = 0)) %>%
-      # spread(surveyWave, "value")
-      #  "surveyWav "Literate"	"House hold head ever attended school""	Has ever received loan	Is member of farming organization or coop	Has a bank account	Owns car	Owns chainsaw	Owns motorized mist blower	Household has electricity	Uses fertilizer	Uses insecticide	Uses herbicide	Uses fungicide	Received accounting/business/entrepreneaurial training	Received planting and farm expansion training	Received crop diversification training	Received deforestation and environment training	Received farm maintenance training	Received fertilizer/pesticide application training	Received health and safety training	Received child labor sensitization training
         
-      #  %>% 
-       gather(key = "Variable", value = -surveyWave) %>%
-       #spread("surveyWave", value = c("Wave 1", "Wave 2")) %>% 
-       kable("html") %>% 
-       kable_styling("striped") 
-       #group_rows("Educational Resources", 4, 7) %>%
-       #group_rows("Financial Resources", 8, 10) %>% 
-       #group_rows("Tools and Equipment", 8, 10) %>% 
-       #group_rows("Chemical Inputs", 4, 7) %>%
-       #group_rows("Extension Services ", 8, 10)
+      # Restructure table so waves 1 and 2 are columns rather than rows
+      # Add column with change between waves 1 and 2  
+        gather(key, value, "Literate":"Received child labor sensitization training") %>% 
+        spread("surveyWave", value) %>% 
+        mutate(key = factor(key, levels = c("Literate", "Household head ever attended school",  
+                                            "Has a bank account", "Has ever received a loan", "Is member of farming organization or coop",
+                                            "Household has electricity", "Owns car", "Owns chainsaw", "Owns motorized mist blower", 
+                                            "Uses fertilizer", "Uses fungicide", "Uses herbicide", "Uses insecticide",
+                                            "Received accounting/business/entrepreneaurial training", 	
+                                           "Received child labor sensitization training", 
+                                          "Received crop diversification training",
+                                         "Received deforestation and environment training",
+                                        "Received farm maintenance training",
+                                       "Received fertilizer/pesticide application training",
+                                      "Received health and safety training",
+                                     "Received planting and farm expansion training"))) %>% 
+      
+        arrange(key) %>% 
+        mutate(change = (`1` - `2`)) %>% 
+        kable("html", col.names = c("Variable", "Wave 1", "Wave 2", "Change")) %>% 
+        kable_styling("striped", "hover") %>% 
+      # Group simular variables together   
+        group_rows("Educational Resources", 1, 2) %>%
+        group_rows("Financial Resources", 3, 5) %>% 
+        group_rows("Tools and Equipment", 6, 9) %>% 
+        group_rows("Chemical Inputs", 10, 13) %>%
+        group_rows("Extension Services ", 14, 21)
    }
    
   
