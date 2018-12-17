@@ -2,8 +2,7 @@
 Survey analysis of Ghanian Cacao farmers
 
 
-Topic
-
+Introduction
 
 This app summarizes some of the key variables for a survey of several thousand cacao farmers across Ghana in both 2008 and 2014. Harvard Professor Micheal Hiscox and Mondelez, the world’s largest chocolate company, jointly implemented this survey but I am the first researcher to ever work with the data. This 73-page survey collected the farmer’s basic demographic data as well as hundreds of metrics assessing their economic livelihood, education, access to resources, and agronomic and environmental practices. 
 
@@ -14,7 +13,12 @@ Motivation
 
 Ghana is the world’s second largest cacao producing region after its neighbor the Ivory Coast. The social, economic, and environmental conditions of these farmers is therefore critical in assessing effective intervention methods and predicting future global cacao market trends.
 
+At this link, you can find a study (comissioned by Cadbury in 2008) that most closely relates to the data contained in this app.
+https://www.researchgate.net/publication/281207478_Mapping_Sustainable_Production_in_Ghanaian_Cocoa
+
 
 Notes
 
 This data contains private and and identifiable information (such as individual farmer name and GPS coordinates). Due to data protection laws, Harvard only holds permission to use this data in aggregate/anonymized manners so it cannot be stored or shared publicly. If you are interested in looking at the data for research purposes, please contact me at mleavens@college.harvard.edu.
+
+HERE is a link to the app: https://molly-leavens.shinyapps.io/Ghanian_Cacao/
